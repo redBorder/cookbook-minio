@@ -25,6 +25,16 @@ install -D -m 0644 README.md %{buildroot}/var/chef/cookbooks/minio/README.md
 %pre
 
 %post
+case "$1" in
+  1)
+    # This is an initial install.
+    :
+  ;;
+  2)
+    # This is an upgrade.
+    su - -s /bin/bash -c 'source /etc/profile && rvm gemset use default && env knife cookbook upload postgresql'
+  ;;
+esac
 
 %files
 %defattr(0755,root,root)
