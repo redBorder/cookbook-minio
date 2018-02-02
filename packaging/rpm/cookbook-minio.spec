@@ -32,7 +32,7 @@ case "$1" in
   ;;
   2)
     # This is an upgrade.
-    su - -s /bin/bash -c 'source /etc/profile && rvm gemset use default && env knife cookbook upload postgresql'
+    su - -s /bin/bash -c 'source /etc/profile && rvm gemset use default && env knife cookbook upload minio'
   ;;
 esac
 
