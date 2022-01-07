@@ -62,7 +62,7 @@ action :register do
       json_query = Chef::JSONCompat.to_json(query)
 
       execute 'Register service in consul' do
-         command "curl http://localhost:8500/v1/agent/service/register -d '#{json_query}' &>/dev/null"
+         command "curl -X PUT http://localhost:8500/v1/agent/service/register -d '#{json_query}' &>/dev/null"
          retries 3
          retry_delay 2
          action :nothing
@@ -80,7 +80,7 @@ action :deregister do
     consul_servers = system('serf members -tag consul=ready | grep consul=ready &> /dev/null')
     if consul_servers
       execute 'Deregister service in consul' do
-        command "curl http://localhost:8500/v1/agent/service/deregister/nginx-#{node["hostname"]} &>/dev/null"
+        command "curl -X PUT http://localhost:8500/v1/agent/service/deregister/nginx-#{node["hostname"]} &>/dev/null"
         action :nothing
       end.run_action(:run)
 
