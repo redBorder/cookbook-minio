@@ -46,5 +46,7 @@ esac
 %doc
 
 %changelog
+* Fri Jan 28 2022 David Vanhoucke <dvanhoucke@redborder.com> - 0.0.3-1
+- define attributes and update register to consul
 * Wed Jan 24 2018 Alberto Rodriguez <arodriguez@redborder.com> - 0.1.0-1
 - first spec version
