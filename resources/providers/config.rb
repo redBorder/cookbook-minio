@@ -82,7 +82,7 @@ action :deregister do
     consul_servers = system('serf members -tag consul=ready | grep consul=ready &> /dev/null')
     if consul_servers and node["minio"]["registered"]
       execute 'Deregister service in consul' do
-        command "curl -X PUT http://localhost:8500/v1/agent/service/deregister/nginx-#{node["hostname"]} &>/dev/null"
+        command "curl -X PUT http://localhost:8500/v1/agent/service/deregister/s3-#{node["hostname"]} &>/dev/null"
         action :nothing
       end.run_action(:run)
 
