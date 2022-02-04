@@ -53,12 +53,12 @@ end
 action :register do
   begin
     consul_servers = system('serf members -tag consul=ready | grep consul=ready &> /dev/null')
-    if consul_servers
+    if consul_servers and !node["minio"]["registered"]
       query = {}
       query["ID"] = "s3-#{node["hostname"]}"
       query["Name"] = "s3"
       query["Address"] = "#{node["ipaddress"]}"
-      query["Port"] = 443
+      query["Port"] = node["minio"]["port"]
       json_query = Chef::JSONCompat.to_json(query)
 
       execute 'Register service in consul' do
@@ -67,6 +67,8 @@ action :register do
          retry_delay 2
          action :nothing
       end.run_action(:run)
+
+      node.set["minio"]["registered"] = true
 
       Chef::Log.info("Minio service has been registered on consul")
     end
@@ -78,11 +80,13 @@ end
 action :deregister do
   begin
     consul_servers = system('serf members -tag consul=ready | grep consul=ready &> /dev/null')
-    if consul_servers
+    if consul_servers and node["minio"]["registered"]
       execute 'Deregister service in consul' do
-        command "curl -X PUT http://localhost:8500/v1/agent/service/deregister/nginx-#{node["hostname"]} &>/dev/null"
+        command "curl -X PUT http://localhost:8500/v1/agent/service/deregister/s3-#{node["hostname"]} &>/dev/null"
         action :nothing
       end.run_action(:run)
+
+      node.set["minio"]["registered"] = false
 
       Chef::Log.info("Minio service has been deregistered from consul")
     end
