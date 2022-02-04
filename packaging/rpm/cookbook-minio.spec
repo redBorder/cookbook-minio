@@ -25,6 +25,16 @@ install -D -m 0644 README.md %{buildroot}/var/chef/cookbooks/minio/README.md
 %pre
 
 %post
+case "$1" in
+  1)
+    # This is an initial install.
+    :
+  ;;
+  2)
+    # This is an upgrade.
+    su - -s /bin/bash -c 'source /etc/profile && rvm gemset use default && env knife cookbook upload minio'
+  ;;
+esac
 
 %files
 %defattr(0755,root,root)
@@ -36,5 +46,7 @@ install -D -m 0644 README.md %{buildroot}/var/chef/cookbooks/minio/README.md
 %doc
 
 %changelog
+* Fri Jan 28 2022 David Vanhoucke <dvanhoucke@redborder.com> - 0.0.3-1
+- define attributes and update register to consul
 * Wed Jan 24 2018 Alberto Rodriguez <arodriguez@redborder.com> - 0.1.0-1
 - first spec version
