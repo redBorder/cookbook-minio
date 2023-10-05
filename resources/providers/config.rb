@@ -3,7 +3,7 @@ action :add do #Usually used to install and configure something
 
     user = new_resource.user
 
-    yum_package "minio" do
+    dnf_package "minio" do
       action :upgrade
       flush_cache [:before]
     end
