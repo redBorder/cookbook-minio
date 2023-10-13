@@ -68,7 +68,7 @@ action :register do
          action :nothing
       end.run_action(:run)
 
-      node.set["minio"]["registered"] = true
+      node.default["minio"]["registered"] = true
 
       Chef::Log.info("Minio service has been registered on consul")
     end
@@ -86,7 +86,7 @@ action :deregister do
         action :nothing
       end.run_action(:run)
 
-      node.set["minio"]["registered"] = false
+      node.default["minio"]["registered"] = false
 
       Chef::Log.info("Minio service has been deregistered from consul")
     end
