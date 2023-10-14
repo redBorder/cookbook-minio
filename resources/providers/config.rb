@@ -9,9 +9,9 @@ action :add do #Usually used to install and configure something
     end
    
     execute "create_user" do
-      command "/usr/sbin/useradd -r postgres"
+      command "/usr/sbin/useradd -r minio"
       ignore_failure true
-      not_if "getent passwd postgres"
+      not_if "getent passwd minio"
     end
 
     %w[ /var/minio /var/minio/data /etc/minio ].each do |path|
