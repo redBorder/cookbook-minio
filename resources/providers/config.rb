@@ -7,10 +7,11 @@ action :add do #Usually used to install and configure something
       action :upgrade
       flush_cache [:before]
     end
-
-    user user do
-      action :create
-      system true
+   
+    execute "create_user" do
+      command "/usr/sbin/useradd -r postgres"
+      ignore_failure true
+      not_if "getent passwd postgres"
     end
 
     %w[ /var/minio /var/minio/data /etc/minio ].each do |path|
