@@ -3,14 +3,15 @@ action :add do #Usually used to install and configure something
 
     user = new_resource.user
 
-    yum_package "minio" do
+    dnf_package "minio" do
       action :upgrade
       flush_cache [:before]
     end
-
-    user user do
-      action :create
-      system true
+   
+    execute "create_user" do
+      command "/usr/sbin/useradd -r minio"
+      ignore_failure true
+      not_if "getent passwd minio"
     end
 
     %w[ /var/minio /var/minio/data /etc/minio ].each do |path|
@@ -68,7 +69,7 @@ action :register do
          action :nothing
       end.run_action(:run)
 
-      node.set["minio"]["registered"] = true
+      node.normal["minio"]["registered"] = true
 
       Chef::Log.info("Minio service has been registered on consul")
     end
@@ -86,7 +87,7 @@ action :deregister do
         action :nothing
       end.run_action(:run)
 
-      node.set["minio"]["registered"] = false
+      node.normal["minio"]["registered"] = false
 
       Chef::Log.info("Minio service has been deregistered from consul")
     end
