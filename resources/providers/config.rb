@@ -52,13 +52,15 @@ action :remove do
   end
 end
 action :register do
+  ipaddress = new_resource.ipaddress
+
   begin
     consul_servers = system('serf members -tag consul=ready | grep consul=ready &> /dev/null')
     if consul_servers and !node["minio"]["registered"]
       query = {}
       query["ID"] = "s3-#{node["hostname"]}"
       query["Name"] = "s3"
-      query["Address"] = "#{node["ipaddress"]}"
+      query["Address"] = ipaddress
       query["Port"] = node["minio"]["port"]
       json_query = Chef::JSONCompat.to_json(query)
 
