@@ -1,12 +1,12 @@
-cookbook-example CHANGELOG
-==========================
+cookbook-minio CHANGELOG
+===============
+
+## 0.0.4
+
+  - David Vanhoucke
+    - [7854ac8] add ipaddress sync
 
 This file is used to list changes made in each version of the example cookbook.
-
-0.0.1
------
-- [your_name]
-  - COMMIT_REF Initial release of cookbook example
 
 - - -
 Check the [Markdown Syntax Guide](http://daringfireball.net/projects/markdown/syntax) for help with Markdown.
