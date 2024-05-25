@@ -1,6 +1,6 @@
-# example Cookbook
+# cookbook-minio
 
-cookbook to install and configure redborder example cookbook
+Chef cookbook to install and configure minio in redborder
 
 ### Platforms
 
@@ -23,4 +23,10 @@ cookbook to install and configure redborder example cookbook
 GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 
 ## Authors
-Authors: Your Name <yourname@redborder.com>
+- Miguel Negrón <manegron@redborder.com>
+- Miguel Álvarez <malvarez@redborder.com>
+- David vanhoucke <dvanhoucke@redborder.com>
+- Enrique Jimenez <ejimenez@redborder.com>
+- Alberto Rodríguez <arodriguez@redborder.com>
+- Juan Jesús Prieto <jjprieto@redborder.com>
+- Eduardo Reyes <eareyes@redborder.com>
