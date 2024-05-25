@@ -1,4 +1,4 @@
-minio_config "config" do
-  mystring "test"
+minio_config 'config' do
+  mystring 'test'
   action :add
 end
