@@ -1,36 +1,36 @@
-action :add do #Usually used to install and configure something
+action :add do
   begin
 
     user = new_resource.user
 
-    dnf_package "minio" do
+    dnf_package 'minio' do
       action :upgrade
       flush_cache [:before]
     end
-   
-    execute "create_user" do
-      command "/usr/sbin/useradd -r minio"
+
+    execute 'create_user' do
+      command '/usr/sbin/useradd -r minio'
       ignore_failure true
-      not_if "getent passwd minio"
+      not_if 'getent passwd minio'
     end
 
-    %w[ /var/minio /var/minio/data /etc/minio ].each do |path|
+    %w(/var/minio /var/minio/data /etc/minio).each do |path|
       directory path do
         owner user
         group user
-        mode 0755
+        mode '0755'
         action :create
       end
     end
 
-    service "minio" do
-      service_name "minio"
+    service 'minio' do
+      service_name 'minio'
       ignore_failure true
-      supports :status => true, :reload => true, :restart => true, :enable => true
+      supports status: true, reload: true, restart: true, enable: true
       action [:start, :enable]
     end
 
-     Chef::Log.info("Minio cookbook has been processed")
+    Chef::Log.info('Minio cookbook has been processed')
   rescue => e
     Chef::Log.error(e.message)
   end
@@ -39,14 +39,14 @@ end
 action :remove do
   begin
 
-    service "minio" do
-      service_name "minio"
+    service 'minio' do
+      service_name 'minio'
       ignore_failure true
-      supports :status => true, :enable => true
+      supports status: true, enable: true
       action [:stop, :disable]
     end
 
-    Chef::Log.info("Minio cookbook has been processed")
+    Chef::Log.info('Minio cookbook has been processed')
   rescue => e
     Chef::Log.error(e.message)
   end
@@ -56,24 +56,24 @@ action :register do
 
   begin
     consul_servers = system('serf members -tag consul=ready | grep consul=ready &> /dev/null')
-    if consul_servers and !node["minio"]["registered"]
+    if consul_servers && !node['minio']['registered']
       query = {}
-      query["ID"] = "s3-#{node["hostname"]}"
-      query["Name"] = "s3"
-      query["Address"] = ipaddress
-      query["Port"] = node["minio"]["port"]
+      query['ID'] = "s3-#{node['hostname']}"
+      query['Name'] = 's3'
+      query['Address'] = ipaddress
+      query['Port'] = node['minio']['port']
       json_query = Chef::JSONCompat.to_json(query)
 
       execute 'Register service in consul' do
-         command "curl -X PUT http://localhost:8500/v1/agent/service/register -d '#{json_query}' &>/dev/null"
-         retries 3
-         retry_delay 2
-         action :nothing
+        command "curl -X PUT http://localhost:8500/v1/agent/service/register -d '#{json_query}' &>/dev/null"
+        retries 3
+        retry_delay 2
+        action :nothing
       end.run_action(:run)
 
-      node.normal["minio"]["registered"] = true
+      node.normal['minio']['registered'] = true
 
-      Chef::Log.info("Minio service has been registered on consul")
+      Chef::Log.info('Minio service has been registered on consul')
     end
   rescue => e
     Chef::Log.error(e.message)
@@ -83,15 +83,15 @@ end
 action :deregister do
   begin
     consul_servers = system('serf members -tag consul=ready | grep consul=ready &> /dev/null')
-    if consul_servers and node["minio"]["registered"]
+    if consul_servers && node['minio']['registered']
       execute 'Deregister service in consul' do
-        command "curl -X PUT http://localhost:8500/v1/agent/service/deregister/s3-#{node["hostname"]} &>/dev/null"
+        command "curl -X PUT http://localhost:8500/v1/agent/service/deregister/s3-#{node['hostname']} &>/dev/null"
         action :nothing
       end.run_action(:run)
 
-      node.normal["minio"]["registered"] = false
+      node.normal['minio']['registered'] = false
 
-      Chef::Log.info("Minio service has been deregistered from consul")
+      Chef::Log.info('Minio service has been deregistered from consul')
     end
   rescue => e
     Chef::Log.error(e.message)
