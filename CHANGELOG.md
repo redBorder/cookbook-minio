@@ -1,6 +1,11 @@
 cookbook-minio CHANGELOG
 ===============
 
+## 0.0.5
+
+  - Miguel Negrón
+    - [1aecb04] Improvement/fix cookbook lint (#7)
+
 ## 0.0.4
 
   - David Vanhoucke
