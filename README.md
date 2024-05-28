@@ -8,7 +8,7 @@ Chef cookbook to install and configure minio in redborder
 
 ### Chef
 
-- Chef 12.0 or later
+- Chef 15.7.0 or later
 
 ## Contributing
 
@@ -21,12 +21,3 @@ Chef cookbook to install and configure minio in redborder
 
 ## License
 GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
-
-## Authors
-- Miguel Negrón <manegron@redborder.com>
-- Miguel Álvarez <malvarez@redborder.com>
-- David vanhoucke <dvanhoucke@redborder.com>
-- Enrique Jimenez <ejimenez@redborder.com>
-- Alberto Rodríguez <arodriguez@redborder.com>
-- Juan Jesús Prieto <jjprieto@redborder.com>
-- Eduardo Reyes <eareyes@redborder.com>
