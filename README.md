@@ -1,7 +1,5 @@
 # cookbook-minio
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
+[![Build Status](https://github.com/redBorder/cookbook-minio/actions/workflows/rpm.yml/badge.svg?branch=master)](https://github.com/redBorder/cookbook-minio/actions/workflows/rpm.yml?query=branch%3Amaster) [![linters](https://github.com/redBorder/cookbook-minio/actions/workflows/lint.yml/badge.svg?event=push)](https://github.com/redBorder/cookbook-minio/actions/workflows/lint.yml) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section --> [![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors-) <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 Chef cookbook to install and configure minio in redborder
 
@@ -21,9 +19,6 @@ Chef cookbook to install and configure minio in redborder
 4. Write tests for your change (if applicable)
 5. Run the tests, ensuring they all pass
 6. Submit a Pull Request using Github
-
-## License
-GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 
 ## Contributors ✨
 
@@ -55,3 +50,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+## License
+
+GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
