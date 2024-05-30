@@ -1,15 +1,15 @@
 # cookbook-minio
 [![Build Status][build-shield]][build-url]
 [![Linters][linters-shield]][linters-url]
-[![All Contributors][contributors-shield]][contributors-url]
+[![License][license-shield]][license-url]
 
 <!-- Badges -->
 [build-shield]: https://github.com/redBorder/cookbook-minio/actions/workflows/rpm.yml/badge.svg?branch=master
 [build-url]: https://github.com/redBorder/cookbook-minio/actions/workflows/rpm.yml?query=branch%3Amaster
 [linters-shield]: https://github.com/redBorder/cookbook-minio/actions/workflows/lint.yml/badge.svg?event=push
 [linters-url]: https://github.com/redBorder/cookbook-minio/actions/workflows/lint.yml
-[contributors-shield]: https://img.shields.io/badge/all_contributors-grey.svg
-[contributors-url]: https://github.com/redBorder/cookbook-minio/graphs/contributors
+[license-shield]: https://img.shields.io/badge/license-AGPLv3-blue.svg
+[license-url]: https://github.com/cookbook-minio/blob/HEAD/LICENSE
 
 Chef cookbook to install and configure minio in redborder
 
