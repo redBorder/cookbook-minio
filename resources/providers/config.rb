@@ -4,7 +4,7 @@ action :add do
     user = new_resource.user
     s3_user = new_resource.access_key_id
     s3_password = new_resource.secret_key_id
-    
+
     dnf_package 'minio' do
       action :upgrade
       flush_cache [:before]
@@ -39,7 +39,7 @@ action :add do
         s3_password: s3_password
       )
       notifies :restart, 'service[minio]', :delayed
-    end  
+    end
 
     Chef::Log.info('Minio cookbook has been processed')
   rescue => e
@@ -48,7 +48,6 @@ action :add do
 end
 
 action :add_s3_conf_nginx do
-  
   service 'nginx' do
     service_name 'nginx'
     ignore_failure true
@@ -72,7 +71,6 @@ action :add_s3_conf_nginx do
     command '/usr/lib/redborder/bin/rb_sync_minio_cluster.sh'
     action :nothing
   end
-
 end
 
 action :remove do
@@ -103,7 +101,7 @@ action :register do
       query['Address'] = ipaddress
       query['Port'] = node['minio']['port']
       json_query = Chef::JSONCompat.to_json(query)
-      
+
       execute 'Register service in consul' do
         command "curl -X PUT http://localhost:8500/v1/agent/service/register -d '#{json_query}' &>/dev/null"
         retries 3
