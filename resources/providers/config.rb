@@ -2,7 +2,9 @@ action :add do
   begin
 
     user = new_resource.user
-
+    s3_user = new_resource.access_key_id
+    s3_password = new_resource.secret_key_id
+    
     dnf_package 'minio' do
       action :upgrade
       flush_cache [:before]
@@ -30,10 +32,47 @@ action :add do
       action [:start, :enable]
     end
 
+    template '/etc/default/minio' do
+      source 'minio.erb'
+      variables(
+        s3_user: s3_user,
+        s3_password: s3_password
+      )
+      notifies :restart, 'service[minio]', :delayed
+    end  
+
     Chef::Log.info('Minio cookbook has been processed')
   rescue => e
     Chef::Log.error(e.message)
   end
+end
+
+action :add_s3_conf_nginx do
+  
+  service 'nginx' do
+    service_name 'nginx'
+    ignore_failure true
+    supports status: true, reload: true, restart: true, enable: true
+    action [:nothing]
+  end
+
+  s3_hosts = new_resource.s3_hosts
+  template '/etc/nginx/conf.d/s3.conf' do
+    source 's3.conf.erb'
+    owner 'nginx'
+    group 'nginx'
+    mode '0644'
+    cookbook 'nginx'
+    variables(s3_hosts: s3_hosts)
+    notifies :restart, 'service[nginx]', :delayed
+    notifies :run, 'execute[rb_sync_minio_cluster]', :delayed
+  end
+
+  execute 'rb_sync_minio_cluster' do
+    command '/usr/lib/redborder/bin/rb_sync_minio_cluster.sh'
+    action :nothing
+  end
+
 end
 
 action :remove do
@@ -51,6 +90,7 @@ action :remove do
     Chef::Log.error(e.message)
   end
 end
+
 action :register do
   ipaddress = new_resource.ipaddress
 
@@ -63,7 +103,7 @@ action :register do
       query['Address'] = ipaddress
       query['Port'] = node['minio']['port']
       json_query = Chef::JSONCompat.to_json(query)
-
+      puts "test"
       execute 'Register service in consul' do
         command "curl -X PUT http://localhost:8500/v1/agent/service/register -d '#{json_query}' &>/dev/null"
         retries 3
