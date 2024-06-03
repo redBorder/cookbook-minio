@@ -54,7 +54,12 @@ action :add_s3_conf_nginx do
     supports status: true, reload: true, restart: true, enable: true
     action [:nothing]
   end
-
+  
+  execute 'rb_sync_minio_cluster' do
+    command '/usr/lib/redborder/bin/rb_sync_minio_cluster.sh'
+    action :nothing
+  end
+  
   s3_hosts = new_resource.s3_hosts
   template '/etc/nginx/conf.d/s3.conf' do
     source 's3.conf.erb'
@@ -65,11 +70,6 @@ action :add_s3_conf_nginx do
     variables(s3_hosts: s3_hosts)
     notifies :restart, 'service[nginx]', :delayed
     notifies :run, 'execute[rb_sync_minio_cluster]', :delayed
-  end
-
-  execute 'rb_sync_minio_cluster' do
-    command '/usr/lib/redborder/bin/rb_sync_minio_cluster.sh'
-    action :nothing
   end
 end
 
