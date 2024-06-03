@@ -103,7 +103,7 @@ action :register do
       query['Address'] = ipaddress
       query['Port'] = node['minio']['port']
       json_query = Chef::JSONCompat.to_json(query)
-      puts "test"
+      
       execute 'Register service in consul' do
         command "curl -X PUT http://localhost:8500/v1/agent/service/register -d '#{json_query}' &>/dev/null"
         retries 3
