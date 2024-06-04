@@ -62,6 +62,7 @@ action :add_s3_conf_nginx do
 
   s3_hosts = new_resource.s3_hosts
   template '/etc/nginx/conf.d/s3.conf' do
+    ignore_failure true
     source 's3.conf.erb'
     owner 'nginx'
     group 'nginx'
