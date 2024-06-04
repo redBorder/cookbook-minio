@@ -70,6 +70,7 @@ action :add_s3_conf_nginx do
     variables(s3_hosts: s3_hosts)
     notifies :restart, 'service[nginx]', :delayed
     notifies :run, 'execute[rb_sync_minio_cluster]', :delayed
+    only_if Minio::Helpers.check_remote_hosts(s3_hosts)
   end
 end
 
