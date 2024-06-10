@@ -4,7 +4,7 @@ default['minio']['port'] = 9000
 default['minio']['access_key_id'] = 'redborder'
 default['minio']['secret_key_id'] = 'redborder'
 default['minio']['s3_hosts'] = ['localhost:9000']
-default['minio']['s3_bucket'] = 'redborder'
+default['minio']['s3_bucket'] = 'bucket'
 default['minio']['s3_endpoint'] = 's3.service'
 
 
