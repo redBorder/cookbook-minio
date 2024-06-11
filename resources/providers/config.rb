@@ -5,10 +5,12 @@ action :add do
     s3_bucket = new_resource.s3_bucket
     s3_endpoint = new_resource.s3_endpoint
     s3_databag = Chef::DataBagItem.load('passwords','s3_secrets') rescue nil
+    im_solo = false
 
     if s3_databag.nil?
       s3_user = Minio::Helpers.generate_random_key(20)
       s3_password = Minio::Helpers.generate_random_key(40)
+      im_solo = true
     else
       s3_user = new_resource.access_key_id
       s3_password = new_resource.secret_key_id
@@ -58,7 +60,7 @@ action :add do
         s3_bucket: s3_bucket,
         s3_endpoint: s3_endpoint
       )
-      notifies :restart, 'service[minio]', :delayed
+      only_if: im_solo
     end
 
     template '/root/.s3cfg_initial' do
@@ -68,7 +70,7 @@ action :add do
         s3_password: s3_password,
         s3_endpoint: s3_endpoint
       )
-      notifies :restart, 'service[minio]', :delayed
+      only_if: im_solo
     end
 
     Chef::Log.info('Minio cookbook has been processed')
