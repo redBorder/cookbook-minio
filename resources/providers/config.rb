@@ -60,7 +60,7 @@ action :add do
         s3_bucket: s3_bucket,
         s3_endpoint: s3_endpoint
       )
-      only_if: im_solo
+      only_if { im_solo }
     end
 
     template '/root/.s3cfg_initial' do
@@ -70,7 +70,7 @@ action :add do
         s3_password: s3_password,
         s3_endpoint: s3_endpoint
       )
-      only_if: im_solo
+      only_if { im_solo }
     end
 
     Chef::Log.info('Minio cookbook has been processed')
