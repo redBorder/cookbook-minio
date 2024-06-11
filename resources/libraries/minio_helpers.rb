@@ -28,11 +28,10 @@ module Minio
       command_output = `serf members list`
     
       nodes = command_output.split("\n")
-      leader_node = nodes.find { |node| node.include?('leader=ready') }
+      leader_node = nodes.find { |node| node.include?('s3=ready') }
     
       if leader_node
-        s3_tag = leader_node[/s3=([a-zA-Z0-9_-]+)/, 1]
-        return s3_tag == 'ready'
+        return true
       else
         return false
       end
