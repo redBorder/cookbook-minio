@@ -2,10 +2,17 @@ action :add do
   begin
 
     user = new_resource.user
-    s3_user = Minio::Helpers.generate_random_key(20)
-    s3_password = Minio::Helpers.generate_random_key(40)
     s3_bucket = new_resource.s3_bucket
     s3_endpoint = new_resource.s3_endpoint
+    s3_databag = Chef::DataBagItem.load('passwords','s3_secrets') rescue nil
+
+    if s3_databag.nil?
+      s3_user = Minio::Helpers.generate_random_key(20)
+      s3_password = Minio::Helpers.generate_random_key(40)
+    else
+      s3_user = new_resource.access_key_id
+      s3_password = new_resource.secret_key_id
+    end
 
     dnf_package 'minio' do
       action :upgrade
