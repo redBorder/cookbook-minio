@@ -38,6 +38,7 @@ action :add do
       ignore_failure true
       supports status: true, reload: true, restart: true, enable: true
       action [:enable, :start]
+      only_if { Minio::Helpers.exists_minio_conf? }
     end
 
     template '/etc/default/minio' do
@@ -49,25 +50,27 @@ action :add do
       notifies :restart, 'service[minio]', :delayed
     end
 
-    template '/etc/redborder/s3_init_conf.yml' do
-      source 's3_init_conf.yml.erb'
-      variables(
-        s3_user: s3_user,
-        s3_password: s3_password,
-        s3_bucket: s3_bucket,
-        s3_endpoint: s3_endpoint
-      )
-    end
+    if !Minio::Helpers.s3_ready?
+      template '/etc/redborder/s3_init_conf.yml' do
+        source 's3_init_conf.yml.erb'
+        variables(
+          s3_user: s3_user,
+          s3_password: s3_password,
+          s3_bucket: s3_bucket,
+          s3_endpoint: s3_endpoint
+        )
+      end
 
-    template '/root/.s3cfg_initial' do
-      source 's3cfg_initial.erb'
-      variables(
-        s3_user: s3_user,
-        s3_password: s3_password,
-        s3_endpoint: s3_endpoint
-      )
+      template '/root/.s3cfg_initial' do
+        source 's3cfg_initial.erb'
+        variables(
+          s3_user: s3_user,
+          s3_password: s3_password,
+          s3_endpoint: s3_endpoint
+        )
+      end
     end
-
+    
     Chef::Log.info('Minio cookbook has been processed')
   rescue => e
     Chef::Log.error(e.message)

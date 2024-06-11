@@ -24,6 +24,10 @@ module Minio
       all_alive
     end
 
+    def self.exists_minio_conf?
+      File.exist?('/etc/default/minio')
+    end
+
     def self.s3_ready?
       command_output = `serf members list`
     
