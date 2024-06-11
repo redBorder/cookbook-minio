@@ -40,7 +40,7 @@ action :add do
       service_name 'minio'
       ignore_failure true
       supports status: true, reload: true, restart: true, enable: true
-      action [:start, :enable]
+      action [:enable, :start]
     end
 
     template '/etc/default/minio' do
