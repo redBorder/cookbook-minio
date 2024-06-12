@@ -9,6 +9,5 @@ default['minio']['s3_hosts'] = ['localhost:9000']
 default['minio']['s3_bucket'] = 'bucket'
 default['minio']['s3_endpoint'] = 's3.service'
 
-
 # Flags
 default['minio']['registered'] = false

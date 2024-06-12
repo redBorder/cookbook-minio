@@ -30,14 +30,14 @@ module Minio
 
     def self.s3_ready?
       command_output = `serf members list`
-    
+
       nodes = command_output.split("\n")
       leader_node = nodes.find { |node| node.include?('s3=ready') }
-    
+
       if leader_node
-        return true
+        true
       else
-        return false
+        false
       end
     end
   end

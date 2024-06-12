@@ -50,7 +50,7 @@ action :add do
       notifies :restart, 'service[minio]', :delayed
     end
 
-    if !Minio::Helpers.s3_ready?
+    unless Minio::Helpers.s3_ready?
       template '/etc/redborder/s3_init_conf.yml' do
         source 's3_init_conf.yml.erb'
         variables(
@@ -70,7 +70,7 @@ action :add do
         )
       end
     end
-    
+
     Chef::Log.info('Minio cookbook has been processed')
   rescue => e
     Chef::Log.error(e.message)
