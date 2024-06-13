@@ -1,0 +1,4 @@
+MINIO_OPTS="--address :9000 --console-address :9001 --config-dir /etc/minio"
+MINIO_VOLUMES=/var/minio/data
+MINIO_ROOT_USER=<%= @s3_user %>
+MINIO_ROOT_PASSWORD=<%= @s3_password %>
