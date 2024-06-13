@@ -2,6 +2,16 @@ action :add do
   begin
 
     user = new_resource.user
+    s3_bucket = new_resource.s3_bucket
+    s3_endpoint = new_resource.s3_endpoint
+
+    if !Minio::Helpers.s3_ready?
+      s3_user = Minio::Helpers.generate_random_key(20)
+      s3_password = Minio::Helpers.generate_random_key(40)
+    else
+      s3_user = new_resource.access_key_id
+      s3_password = new_resource.secret_key_id
+    end
 
     dnf_package 'minio' do
       action :upgrade
@@ -27,12 +37,71 @@ action :add do
       service_name 'minio'
       ignore_failure true
       supports status: true, reload: true, restart: true, enable: true
-      action [:start, :enable]
+      action [:enable, :start]
+      only_if { Minio::Helpers.exists_minio_conf? }
+    end
+
+    template '/etc/default/minio' do
+      source 'minio.erb'
+      variables(
+        s3_user: s3_user,
+        s3_password: s3_password
+      )
+      notifies :restart, 'service[minio]', :delayed
+    end
+
+    unless Minio::Helpers.s3_ready?
+      template '/etc/redborder/s3_init_conf.yml' do
+        source 's3_init_conf.yml.erb'
+        variables(
+          s3_user: s3_user,
+          s3_password: s3_password,
+          s3_bucket: s3_bucket,
+          s3_endpoint: s3_endpoint
+        )
+      end
+
+      template '/root/.s3cfg_initial' do
+        source 's3cfg_initial.erb'
+        variables(
+          s3_user: s3_user,
+          s3_password: s3_password,
+          s3_endpoint: s3_endpoint
+        )
+      end
     end
 
     Chef::Log.info('Minio cookbook has been processed')
   rescue => e
     Chef::Log.error(e.message)
+  end
+end
+
+action :add_s3_conf_nginx do
+  service 'nginx' do
+    service_name 'nginx'
+    ignore_failure true
+    supports status: true, reload: true, restart: true, enable: true
+    action [:nothing]
+  end
+
+  execute 'rb_sync_minio_cluster' do
+    command '/usr/lib/redborder/bin/rb_sync_minio_cluster.sh'
+    action :nothing
+  end
+
+  s3_hosts = new_resource.s3_hosts
+  template '/etc/nginx/conf.d/s3.conf' do
+    ignore_failure true
+    source 's3.conf.erb'
+    owner 'nginx'
+    group 'nginx'
+    mode '0644'
+    cookbook 'nginx'
+    variables(s3_hosts: s3_hosts)
+    notifies :restart, 'service[nginx]', :delayed
+    notifies :run, 'execute[rb_sync_minio_cluster]', :delayed
+    only_if { Minio::Helpers.check_remote_hosts(s3_hosts) }
   end
 end
 
@@ -51,6 +120,7 @@ action :remove do
     Chef::Log.error(e.message)
   end
 end
+
 action :register do
   ipaddress = new_resource.ipaddress
 
