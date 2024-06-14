@@ -19,7 +19,7 @@ action :add do
     end
 
     execute 'create_user' do
-      command '/usr/sbin/useradd -r minio'
+      command '/usr/sbin/useradd -r minio -s /sbin/nologin'
       ignore_failure true
       not_if 'getent passwd minio'
     end
