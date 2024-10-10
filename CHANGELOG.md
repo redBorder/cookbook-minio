@@ -1,6 +1,11 @@
 cookbook-minio CHANGELOG
 ===============
 
+## 1.0.1
+
+  - Miguel Negrón
+    - [f8212c7] Add pre and postun to clean the cookbook
+
 ## 1.0.0
 
   - malvads

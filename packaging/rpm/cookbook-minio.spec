@@ -23,6 +23,9 @@ chmod -R 0755 %{buildroot}/var/chef/cookbooks/minio
 install -D -m 0644 README.md %{buildroot}/var/chef/cookbooks/minio/README.md
 
 %pre
+if [ -d /var/chef/cookbooks/minio ]; then
+    rm -rf /var/chef/cookbooks/minio
+fi
 
 %post
 case "$1" in
@@ -36,6 +39,12 @@ case "$1" in
   ;;
 esac
 
+%postun
+# Deletes directory when uninstall the package
+if [ "$1" = 0 ] && [ -d /var/chef/cookbooks/minio ]; then
+  rm -rf /var/chef/cookbooks/minio
+fi
+
 %files
 %defattr(0755,root,root)
 /var/chef/cookbooks/minio
@@ -46,9 +55,14 @@ esac
 %doc
 
 %changelog
-* Fri Jan 28 2022 David Vanhoucke <dvanhoucke@redborder.com> - 0.0.3-1
+* Thu Oct 10 2024 Miguel Negrón <manegron@redborder.com>
+- Add pre and postun
+
+* Fri Jan 28 2022 David Vanhoucke <dvanhoucke@redborder.com>
 - define attributes and update register to consul
-* Fri Jan 07 2022 David Vanhoucke <dvanhoucke@redborder.com> - 0.0.2-1
+
+* Fri Jan 07 2022 David Vanhoucke <dvanhoucke@redborder.com>
 - change register to consul
-* Wed Jan 24 2018 Alberto Rodriguez <arodriguez@redborder.com> - 0.1.0-1
+
+* Wed Jan 24 2018 Alberto Rodriguez <arodriguez@redborder.com>
 - first spec version
