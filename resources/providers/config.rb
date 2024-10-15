@@ -35,15 +35,15 @@ action :add do
     end
 
     # MC tool configuration
-    directory '/root/.mc' do
+    directory '/root/.mcli' do
       owner 'root'
       group 'root'
       mode '0755'
       action :create
     end
 
-    template '/root/.mc/config.json' do
-      source 'mc_config.json.erb'
+    template '/root/.mcli/config.json' do
+      source 'mcli_config.json.erb'
       variables(
         s3_user: s3_user,
         s3_password: s3_password
