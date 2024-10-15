@@ -4,6 +4,7 @@ action :add do
     user = new_resource.user
     s3_bucket = new_resource.s3_bucket
     s3_endpoint = new_resource.s3_endpoint
+    managers_with_minio = new_resource.managers_with_minio
 
     if !Minio::Helpers.s3_ready?
       s3_user = Minio::Helpers.generate_random_key(20)
@@ -31,6 +32,22 @@ action :add do
         mode '0755'
         action :create
       end
+    end
+
+    # MC tool configuration
+    directory '/root/.mcli' do
+      owner 'root'
+      group 'root'
+      mode '0755'
+      action :create
+    end
+
+    template '/root/.mcli/config.json' do
+      source 'mcli_config.json.erb'
+      cookbook 'minio'
+      variables(s3_user: s3_user,
+                s3_password: s3_password,
+                managers_with_minio: managers_with_minio)
     end
 
     service 'minio' do
