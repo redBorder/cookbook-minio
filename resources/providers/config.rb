@@ -4,6 +4,7 @@ action :add do
     user = new_resource.user
     s3_bucket = new_resource.s3_bucket
     s3_endpoint = new_resource.s3_endpoint
+    managers_with_minio = new_resource.managers_with_minio
 
     if !Minio::Helpers.s3_ready?
       s3_user = Minio::Helpers.generate_random_key(20)
@@ -33,12 +34,38 @@ action :add do
       end
     end
 
+    # MC tool configuration
+    directory '/root/.mc'
+      owner 'root'
+      group 'root'
+      mode '0755'
+      action :create
+    end
+
+    template '/root/.mc/config.json' do
+      source 'mc_config.json.erb'
+      variables(
+        s3_user: s3_user,
+        s3_password: s3_password
+      )
+      notifies :restart, 'service[minio]', :delayed
+    end
+
     service 'minio' do
       service_name 'minio'
       ignore_failure true
       supports status: true, reload: true, restart: true, enable: true
       action [:enable, :start]
       only_if { Minio::Helpers.exists_minio_conf? }
+    end
+
+    template '/etc/default/minio' do
+      source 'minio.erb'
+      variables(
+        s3_user: s3_user,
+        s3_password: s3_password
+      )
+      notifies :restart, 'service[minio]', :delayed
     end
 
     template '/etc/default/minio' do

@@ -1,0 +1,42 @@
+{
+	"version": "10",
+	"aliases": {
+		"gcs": {
+			"url": "https://storage.googleapis.com",
+			"accessKey": "YOUR-ACCESS-KEY-HERE",
+			"secretKey": "YOUR-SECRET-KEY-HERE",
+			"api": "S3v2",
+			"path": "dns"
+		},
+		"local": {
+			"url": "http://localhost:9000",
+			"accessKey": "<%= @s3_user %>",
+			"secretKey": "<%= @s3_password %>",
+			"api": "S3v4",
+			"path": "auto"
+		},
+		"play": {
+			"url": "https://play.min.io",
+			"accessKey": "YOUR-ACCESS-KEY-HERE",
+			"secretKey": "YOUR-ACCESS-KEY-HERE",
+			"api": "S3v4",
+			"path": "auto"
+		},
+    <%= @managers_with_mino.each do |m| %>
+		"<%= m %>": {
+			"url": "<%= "http://#{m}.#{node['redborder']['cdomain']}:#{node['minio']['port']}"%>",
+			"accessKey": "<%= @s3_user %>",
+			"secretKey": "<%= @s3_password %>",
+			"api": "s3v4",
+			"path": "auto"
+		},
+    <% end %>
+		"s3": {
+			"url": "https://s3.amazonaws.com",
+			"accessKey": "YOUR-ACCESS-KEY-HERE",
+			"secretKey": "YOUR-SECRET-KEY-HERE",
+			"api": "S3v4",
+			"path": "dns"
+		}
+	}
+}
