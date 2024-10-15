@@ -68,15 +68,6 @@ action :add do
       notifies :restart, 'service[minio]', :delayed
     end
 
-    template '/etc/default/minio' do
-      source 'minio.erb'
-      variables(
-        s3_user: s3_user,
-        s3_password: s3_password
-      )
-      notifies :restart, 'service[minio]', :delayed
-    end
-
     unless Minio::Helpers.s3_ready?
       template '/etc/redborder/s3_init_conf.yml' do
         source 's3_init_conf.yml.erb'
