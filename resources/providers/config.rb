@@ -110,7 +110,6 @@ action :add_mcli do
   s3_user = new_resource.access_key_id
   s3_password = new_resource.secret_key_id
 
-    # mcli (mc) tool configuration
   directory '/root/.mcli' do
     owner 'root'
     group 'root'
