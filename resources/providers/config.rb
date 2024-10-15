@@ -107,18 +107,10 @@ end
 
 action :add_mcli do
   managers_with_minio = new_resource.managers_with_minio
-  s3_bucket = new_resource.s3_bucket
-  s3_endpoint = new_resource.s3_endpoint
+  s3_user = new_resource.access_key_id
+  s3_password = new_resource.secret_key_id
 
-  if !Minio::Helpers.s3_ready?
-    s3_user = Minio::Helpers.generate_random_key(20)
-    s3_password = Minio::Helpers.generate_random_key(40)
-  else
-    s3_user = new_resource.access_key_id
-    s3_password = new_resource.secret_key_id
-  end
-
-  # mcli (mc) tool configuration
+    # mcli (mc) tool configuration
   directory '/root/.mcli' do
     owner 'root'
     group 'root'
