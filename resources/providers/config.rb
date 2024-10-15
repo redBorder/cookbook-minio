@@ -44,12 +44,10 @@ action :add do
 
     template '/root/.mcli/config.json' do
       source 'mcli_config.json.erb'
-      variables(
-        s3_user: s3_user,
-        s3_password: s3_password,
-        managers_with_minio: managers_with_minio
-      )
-      notifies :restart, 'service[minio]', :delayed
+      cookbook 'minio'
+      variables(s3_user: s3_user,
+                s3_password: s3_password,
+                managers_with_minio: managers_with_minio)
     end
 
     service 'minio' do
