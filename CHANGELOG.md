@@ -1,6 +1,21 @@
 cookbook-minio CHANGELOG
 ===============
 
+## 1.1.0
+
+  - Miguel Negrón
+    - [780b272] Merge pull request #26 from redBorder/feature/add_mc_tool
+  - Miguel Negron
+    - [a869458] Fix cookbook
+    - [e4a2bcb] Fix mcli_config.json
+    - [696ff5e] Fix lint
+    - [8f18e8b] Fix typo
+    - [7c5ddc6] Rename mc to mcli
+    - [85f8c79] fix mc config
+    - [22eeb08] fix mc config
+    - [26d47f3] fix mc config
+    - [cc0aea2] add mc
+
 ## 1.0.1
 
   - Miguel Negrón
