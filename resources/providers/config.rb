@@ -46,7 +46,8 @@ action :add do
       source 'mcli_config.json.erb'
       variables(
         s3_user: s3_user,
-        s3_password: s3_password
+        s3_password: s3_password,
+        managers_with_minio: managers_with_minio
       )
       notifies :restart, 'service[minio]', :delayed
     end

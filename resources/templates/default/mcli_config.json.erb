@@ -22,7 +22,7 @@
 			"api": "S3v4",
 			"path": "auto"
 		},
-    <% @managers_with_mino.each do |m| %>
+    <% @managers_with_minio.each do |m| %>
 		"<%= m %>": {
 			"url": "<%= "http://#{m}.#{node['redborder']['cdomain']}:#{node['minio']['port']}" %>",
 			"accessKey": "<%= @s3_user %>",
