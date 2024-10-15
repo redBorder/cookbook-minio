@@ -1,4 +1,4 @@
-actions :add, :remove, :register, :deregister, :add_s3_conf_nginx
+actions :add, :remove, :register, :deregister, :add_s3_conf_nginx, :add_mcli
 default_action :add
 
 attribute :user, kind_of: String, default: 'minio'
