@@ -35,7 +35,7 @@ action :add do
     end
 
     # MC tool configuration
-    directory '/root/.mc'
+    directory '/root/.mc' do
       owner 'root'
       group 'root'
       mode '0755'
