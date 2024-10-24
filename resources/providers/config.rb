@@ -1,13 +1,19 @@
+# Cookbook:: minio
+# Provider:: config 
+
+include Minio::Helpers
+
 action :add do
   begin
 
     user = new_resource.user
     s3_bucket = new_resource.s3_bucket
     s3_endpoint = new_resource.s3_endpoint
+    managers_with_minio = new_resource.managers_with_minio
 
-    if !Minio::Helpers.s3_ready?
-      s3_user = Minio::Helpers.generate_random_key(20)
-      s3_password = Minio::Helpers.generate_random_key(40)
+    if !s3_ready?
+      s3_user = generate_random_key(20)
+      s3_password = generate_random_key(40)
     else
       s3_user = new_resource.access_key_id
       s3_password = new_resource.secret_key_id
@@ -15,7 +21,6 @@ action :add do
 
     dnf_package 'minio' do
       action :upgrade
-      flush_cache [:before]
     end
 
     execute 'create_user' do
@@ -38,7 +43,7 @@ action :add do
       ignore_failure true
       supports status: true, reload: true, restart: true, enable: true
       action [:enable, :start]
-      only_if { Minio::Helpers.exists_minio_conf? }
+      only_if { exists_minio_conf? }
     end
 
     template '/etc/default/minio' do
@@ -50,7 +55,7 @@ action :add do
       notifies :restart, 'service[minio]', :delayed
     end
 
-    unless Minio::Helpers.s3_ready?
+    unless s3_ready?
       template '/etc/redborder/s3_init_conf.yml' do
         source 's3_init_conf.yml.erb'
         variables(
@@ -60,7 +65,7 @@ action :add do
           s3_endpoint: s3_endpoint
         )
       end
-
+      
       template '/root/.s3cfg_initial' do
         source 's3cfg_initial.erb'
         variables(
@@ -71,6 +76,26 @@ action :add do
       end
     end
 
+    ruby_block 'check_minio_replication' do
+      block do
+        if managers_with_minio.count > 1 && mcli?(node['name']) 
+          if replication_started?
+            if !member_of_replication_cluster?(node['name']) && follower?
+              add_to_minio_replication(managers_with_minio, node['name'])
+              Chef::Log.info("Added node to Minio replication : #{node['name']}")
+            end
+          elsif follower?
+            add_to_minio_replication(managers_with_minio, node['name'])
+            Chef::Log.info("Minio replication started on #{managers_with_minio}")
+          end
+        else
+          Chef::Log.info('no Minio replication on 1 node minio cluster')        
+        end
+      end
+      action :run
+      only_if { s3_running? }
+    end
+
     Chef::Log.info('Minio cookbook has been processed')
   rescue => e
     Chef::Log.error(e.message)
@@ -78,6 +103,8 @@ action :add do
 end
 
 action :add_s3_conf_nginx do
+  s3_hosts = new_resource.s3_hosts
+
   service 'nginx' do
     service_name 'nginx'
     ignore_failure true
@@ -85,12 +112,6 @@ action :add_s3_conf_nginx do
     action [:nothing]
   end
 
-  execute 'rb_sync_minio_cluster' do
-    command '/usr/lib/redborder/bin/rb_sync_minio_cluster.sh'
-    action :nothing
-  end
-
-  s3_hosts = new_resource.s3_hosts
   template '/etc/nginx/conf.d/s3.conf' do
     ignore_failure true
     source 's3.conf.erb'
@@ -100,8 +121,6 @@ action :add_s3_conf_nginx do
     cookbook 'nginx'
     variables(s3_hosts: s3_hosts)
     notifies :restart, 'service[nginx]', :delayed
-    notifies :run, 'execute[rb_sync_minio_cluster]', :delayed
-    only_if { Minio::Helpers.check_remote_hosts(s3_hosts) }
   end
 end
 
@@ -117,6 +136,23 @@ action :add_mcli do
     action :create
   end
 
+  directory '/root/.mcli/share' do
+    owner 'root'
+    group 'root'
+    mode '0755'
+    action :create
+  end
+
+  file '/root/.mcli/share/downloads.json' do
+    action :touch
+    only_if { !::File.exist?('/root/.mcli/share/downloads.json') }
+  end
+
+  file '/root/.mcli/share/uploads.json' do
+    action :touch
+    only_if { !::File.exist?('/root/.mcli/share/uploads.json') }
+  end
+
   template '/root/.mcli/config.json' do
     source 'mcli_config.json.erb'
     cookbook 'minio'
@@ -128,6 +164,22 @@ end
 
 action :remove do
   begin
+
+    ruby_block 'check_minio_replication' do
+      block do
+        if replication_started? && mcli?(node['name'])
+          if member_of_replication_cluster?(node['name'])
+              remove_from_minio_replication(node['name'])
+              remove_data_from_disk
+              Chef::Log.info("removed node from Minio replication : #{node['name']}")
+          end
+        else
+          Chef::Log.info('no Minio replication started')        
+        end
+      end
+      action :run
+      only_if { s3_running? }
+    end
 
     service 'minio' do
       service_name 'minio'
