@@ -1,11 +1,11 @@
 # Cookbook:: minio
-# Provider:: config 
+# Provider:: config
 
 include Minio::Helpers
+unified_mode true
 
 action :add do
   begin
-
     user = new_resource.user
     s3_bucket = new_resource.s3_bucket
     s3_endpoint = new_resource.s3_endpoint
@@ -65,7 +65,7 @@ action :add do
           s3_endpoint: s3_endpoint
         )
       end
-      
+
       template '/root/.s3cfg_initial' do
         source 's3cfg_initial.erb'
         variables(
@@ -78,7 +78,7 @@ action :add do
 
     ruby_block 'check_minio_replication' do
       block do
-        if managers_with_minio.count > 1 && mcli?(node['name']) 
+        if managers_with_minio.count > 1 && mcli?(node['name'])
           if replication_started?
             if !member_of_replication_cluster?(node['name']) && follower?
               add_to_minio_replication(managers_with_minio, node['name'])
@@ -89,7 +89,7 @@ action :add do
             Chef::Log.info("Minio replication started on #{managers_with_minio}")
           end
         else
-          Chef::Log.info('no Minio replication on 1 node minio cluster')        
+          Chef::Log.info('no Minio replication on 1 node minio cluster')
         end
       end
       action :run
@@ -145,12 +145,12 @@ action :add_mcli do
 
   file '/root/.mcli/share/downloads.json' do
     action :touch
-    only_if { !::File.exist?('/root/.mcli/share/downloads.json') }
+    not_if { ::File.exist?('/root/.mcli/share/downloads.json') }
   end
 
   file '/root/.mcli/share/uploads.json' do
     action :touch
-    only_if { !::File.exist?('/root/.mcli/share/uploads.json') }
+    not_if { ::File.exist?('/root/.mcli/share/uploads.json') }
   end
 
   template '/root/.mcli/config.json' do
@@ -164,17 +164,16 @@ end
 
 action :remove do
   begin
-
     ruby_block 'check_minio_replication' do
       block do
         if replication_started? && mcli?(node['name'])
           if member_of_replication_cluster?(node['name'])
-              remove_from_minio_replication(node['name'])
-              remove_data_from_disk
-              Chef::Log.info("removed node from Minio replication : #{node['name']}")
+            remove_from_minio_replication(node['name'])
+            remove_data_from_disk
+            Chef::Log.info("removed node from Minio replication : #{node['name']}")
           end
         else
-          Chef::Log.info('no Minio replication started')        
+          Chef::Log.info('no Minio replication started')
         end
       end
       action :run
@@ -214,7 +213,7 @@ action :register do
         action :nothing
       end.run_action(:run)
 
-      node.normal['minio']['registered'] = true
+      node.override['minio']['registered'] = true
 
       Chef::Log.info('Minio service has been registered on consul')
     end
@@ -232,7 +231,7 @@ action :deregister do
         action :nothing
       end.run_action(:run)
 
-      node.normal['minio']['registered'] = false
+      node.override['minio']['registered'] = false
 
       Chef::Log.info('Minio service has been deregistered from consul')
     end

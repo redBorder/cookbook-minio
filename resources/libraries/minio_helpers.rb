@@ -64,7 +64,7 @@ module Minio
     def add_to_minio_replication(s3_hosts, node_name)
       s3_nodes = s3_hosts.dup
       s3_nodes.delete(node_name)
-      s3_nodes = s3_nodes.join(" ") + " " + node_name
+      s3_nodes = s3_nodes.join(' ') + ' ' + node_name
       system("/usr/local/bin/mcli admin replicate add #{s3_nodes}")
     end
 
@@ -75,6 +75,5 @@ module Minio
     def remove_data_from_disk
       system('rm -rf /var/minio/data')
     end
-
   end
 end
