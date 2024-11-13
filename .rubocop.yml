@@ -1,2 +1,5 @@
 Style/SpecialGlobalVars:
   Enabled: false
+AllCops:
+  Exclude:
+    - 'packaging/rpm/*.spec'
