@@ -1,5 +1,3 @@
-unified_mode true
-
 actions :add, :remove, :register, :deregister, :add_s3_conf_nginx, :add_mcli
 default_action :add
 

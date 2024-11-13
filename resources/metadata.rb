@@ -1,5 +1,3 @@
-unified_mode true
-
 name             'minio'
 maintainer       'Eneo Tecnología S.L.'
 maintainer_email 'git@redborder.com'
