@@ -1,6 +1,6 @@
 module Minio
   module Helpers
-    def self.check_remote_port(host, port)
+    def check_remote_port(host, port)
       `nc -zv #{host} #{port} 2>&1`
 
       process_status = $?
@@ -8,14 +8,14 @@ module Minio
       process_status.exitstatus == 0
     end
 
-    def self.generate_random_key(len)
+    def generate_random_key(len)
       chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
       key = ''
       len.times { key << chars[rand(chars.size)] }
       key
     end
 
-    def self.check_remote_hosts(hosts)
+    def check_remote_hosts(hosts)
       all_alive = true
       hosts.each do |host|
         host, port = host.split(':')
@@ -24,11 +24,11 @@ module Minio
       all_alive
     end
 
-    def self.exists_minio_conf?
+    def exists_minio_conf?
       File.exist?('/etc/default/minio')
     end
 
-    def self.s3_ready?
+    def s3_ready?
       command_output = `serf members list`
 
       nodes = command_output.split("\n")
@@ -39,6 +39,41 @@ module Minio
       else
         false
       end
+    end
+
+    def s3_running?
+      system('systemctl is-active minio --quiet')
+    end
+
+    def mcli?(node_name)
+      File.exist?('/usr/local/bin/mcli') && system("/usr/local/bin/mcli alias ls | grep -q ^#{node_name}")
+    end
+
+    def replication_started?
+      !system("/usr/local/bin/mcli admin replicate info local | grep -i 'SiteReplication is not enabled'")
+    end
+
+    def follower?
+      !Dir.exist?('/var/minio/data/bucket')
+    end
+
+    def member_of_replication_cluster?(node_name)
+      system("/usr/local/bin/mcli admin replicate info local | grep #{node_name}")
+    end
+
+    def add_to_minio_replication(s3_hosts, node_name)
+      s3_nodes = s3_hosts.dup
+      s3_nodes.delete(node_name)
+      s3_nodes = s3_nodes.join(' ') + ' ' + node_name
+      system("/usr/local/bin/mcli admin replicate add #{s3_nodes}")
+    end
+
+    def remove_from_minio_replication(node_name)
+      system("/usr/local/bin/mcli admin replicate rm #{node_name} #{node_name} --force")
+    end
+
+    def remove_data_from_disk
+      system('rm -rf /var/minio/data')
     end
   end
 end

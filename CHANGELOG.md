@@ -1,6 +1,11 @@
 cookbook-minio CHANGELOG
 ===============
 
+## 1.3.0
+
+  - David Vanhoucke
+    - [c823163] minio site replication with mcli tool
+
 ## 1.2.0
 
   - manegron
