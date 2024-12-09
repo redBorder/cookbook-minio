@@ -57,6 +57,7 @@ action :add do
     unless s3_ready?
       template '/etc/redborder/s3_init_conf.yml' do
         source 's3_init_conf.yml.erb'
+        cookbook 'minio'
         variables(
           s3_user: s3_user,
           s3_password: s3_password,
@@ -67,6 +68,7 @@ action :add do
 
       template '/root/.s3cfg_initial' do
         source 's3cfg_initial.erb'
+        cookbook 'minio'
         variables(
           s3_user: s3_user,
           s3_password: s3_password,
