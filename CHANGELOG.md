@@ -1,6 +1,11 @@
 cookbook-minio CHANGELOG
 ===============
 
+## 1.3.1
+
+  - Miguel Alvarez
+    - [0c30d73] Add source cookbook
+
 ## 1.3.0
 
   - David Vanhoucke
