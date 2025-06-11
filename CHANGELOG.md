@@ -1,6 +1,12 @@
 cookbook-minio CHANGELOG
 ===============
 
+## 1.3.2
+
+  - nilsver
+    - [3c62a98] update chef server file
+    - [09710a6] add cdomain to minio
+
 ## 1.3.1
 
   - Miguel Alvarez
