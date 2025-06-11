@@ -75,5 +75,13 @@ module Minio
     def remove_data_from_disk
       system('rm -rf /var/minio/data')
     end
+
+    def get_cdomain
+      if File.exist?('/etc/redborder/cdomain')
+        File.read('/etc/redborder/cdomain').strip
+      else
+        'redborder.cluster'
+      end
+    end
   end
 end

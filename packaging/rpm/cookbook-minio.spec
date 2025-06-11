@@ -36,6 +36,17 @@ case "$1" in
   2)
     # This is an upgrade.
     su - -s /bin/bash -c 'source /etc/profile && rvm gemset use default && env knife cookbook upload minio'
+    CDOMAIN_FILE="/etc/redborder/cdomain"
+
+    if [ -f "$CDOMAIN_FILE" ]; then
+      SUFFIX=$(cat "$CDOMAIN_FILE")
+    else
+      SUFFIX="redborder.cluster"
+    fi
+
+    sed -i "s|^bookshelf\['external_url'\] = \"https://s3\.service\"|bookshelf['external_url'] = \"https://s3.service.${SUFFIX}\"|" /etc/opscode/chef-server.rb
+    systemctl restart opscode-erchef.service
+    chef-server-ctl reconfigure
   ;;
 esac
 
