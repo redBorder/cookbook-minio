@@ -1,6 +1,11 @@
 cookbook-minio CHANGELOG
 ===============
 
+## 1.3.3
+
+  - Miguel Negrón
+    - [388fcff] Fix cdomain
+
 ## 1.3.2
 
   - nilsver
