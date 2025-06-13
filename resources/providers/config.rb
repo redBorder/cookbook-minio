@@ -108,6 +108,7 @@ end
 
 action :add_s3_conf_nginx do
   s3_hosts = new_resource.s3_hosts
+  cdomain = get_cdomain
 
   service 'nginx' do
     service_name 'nginx'
@@ -123,7 +124,7 @@ action :add_s3_conf_nginx do
     group 'nginx'
     mode '0644'
     cookbook 'nginx'
-    variables(s3_hosts: s3_hosts)
+    variables(s3_hosts: s3_hosts, cdomain: cdomain)
     notifies :restart, 'service[nginx]', :delayed
   end
 end
