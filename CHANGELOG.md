@@ -1,6 +1,11 @@
 cookbook-minio CHANGELOG
 ===============
 
+## 1.3.4
+
+  - Miguel Negrón
+    - [b177e9f] Remove chef modifications
+
 ## 1.3.3
 
   - Miguel Negrón
