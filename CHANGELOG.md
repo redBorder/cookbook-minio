@@ -1,6 +1,11 @@
 cookbook-minio CHANGELOG
 ===============
 
+## 1.3.5
+
+  - jnavarrorb
+    - [6176399] Remove executable permissions on non-executable files
+
 ## 1.3.4
 
   - Miguel Negrón
