@@ -7,6 +7,7 @@ action :add do
   begin
     user = new_resource.user
     s3_bucket = new_resource.s3_bucket
+    s3_malware_bucket = new_resource.s3_malware_bucket
     s3_endpoint = new_resource.s3_endpoint
     managers_with_minio = new_resource.managers_with_minio
     cdomain = get_cdomain
@@ -14,9 +15,13 @@ action :add do
     if !s3_ready?
       s3_user = generate_random_key(20)
       s3_password = generate_random_key(40)
+      s3_malware_user = generate_random_key(20)
+      s3_malware_password = generate_random_key(40)
     else
       s3_user = new_resource.access_key_id
       s3_password = new_resource.secret_key_id
+      s3_malware_user = new_resource.malware_access_key_id
+      s3_malware_password = new_resource.malware_secret_key_id
     end
 
     dnf_package 'minio' do
@@ -64,6 +69,9 @@ action :add do
           s3_password: s3_password,
           s3_bucket: s3_bucket,
           s3_endpoint: s3_endpoint,
+          s3_malware_user: s3_malware_user,
+          s3_malware_password: s3_malware_password,
+          s3_malware_bucket: s3_malware_bucket,
           cdomain: cdomain
         )
       end
@@ -74,6 +82,17 @@ action :add do
         variables(
           s3_user: s3_user,
           s3_password: s3_password,
+          s3_endpoint: s3_endpoint,
+          cdomain: cdomain
+        )
+      end
+
+      template '/root/.s3cfg_malware_initial' do
+        source 's3cfg_malware_initial.erb'
+        cookbook 'minio'
+        variables(
+          s3_user: s3_malware_user,
+          s3_password: s3_malware_password,
           s3_endpoint: s3_endpoint,
           cdomain: cdomain
         )
