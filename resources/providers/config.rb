@@ -55,7 +55,9 @@ action :add do
       source 'minio.erb'
       variables(
         s3_user: s3_user,
-        s3_password: s3_password
+        s3_password: s3_password,
+        s3_malware_user: s3_malware_user,
+        s3_malware_password: s3_malware_password
       )
       notifies :restart, 'service[minio]', :delayed
     end
