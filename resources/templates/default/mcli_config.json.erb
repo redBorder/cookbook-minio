@@ -9,6 +9,13 @@
 			"api": "S3v4",
 			"path": "auto"
 		},
+		"malware": {
+			"url": "http://localhost:9000",
+			"accessKey": "<%= @s3_malware_user %>",
+			"secretKey": "<%= @s3_malware_password %>",
+			"api": "S3v4",
+			"path": "auto"
+		},
 	<% end %>
     <% @managers_with_minio.each_with_index do |m, index| %>
     <% manager = (m == 'localhost') ? node.name : m %>
