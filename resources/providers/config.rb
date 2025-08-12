@@ -55,9 +55,7 @@ action :add do
       source 'minio.erb'
       variables(
         s3_user: s3_user,
-        s3_password: s3_password,
-        s3_malware_user: s3_malware_user,
-        s3_malware_password: s3_malware_password
+        s3_password: s3_password
       )
       notifies :restart, 'service[minio]', :delayed
     end
@@ -154,8 +152,6 @@ action :add_mcli do
   managers_with_minio = new_resource.managers_with_minio
   s3_user = new_resource.access_key_id
   s3_password = new_resource.secret_key_id
-  s3_malware_user = new_resource.malware_access_key_id
-  s3_malware_password = new_resource.malware_secret_key_id
 
   directory '/root/.mcli' do
     owner 'root'
@@ -186,8 +182,6 @@ action :add_mcli do
     cookbook 'minio'
     variables(s3_user: s3_user,
               s3_password: s3_password,
-              s3_malware_user: s3_malware_user,
-              s3_malware_password: s3_malware_password,
               managers_with_minio: managers_with_minio)
   end
 end
