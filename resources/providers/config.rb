@@ -9,6 +9,7 @@ action :add do
     s3_bucket = new_resource.s3_bucket
     s3_malware_bucket = new_resource.s3_malware_bucket
     s3_endpoint = new_resource.s3_endpoint
+    s3_malware_endpoint = new_resource.s3_malware_endpoint
     managers_with_minio = new_resource.managers_with_minio
     cdomain = get_cdomain
 
@@ -72,6 +73,7 @@ action :add do
           s3_malware_user: s3_malware_user,
           s3_malware_password: s3_malware_password,
           s3_malware_bucket: s3_malware_bucket,
+          s3_malware_endpoint: s3_malware_endpoint,
           cdomain: cdomain
         )
       end
@@ -93,7 +95,7 @@ action :add do
         variables(
           s3_user: s3_malware_user,
           s3_password: s3_malware_password,
-          s3_endpoint: s3_endpoint,
+          s3_endpoint: s3_malware_endpoint,
           cdomain: cdomain
         )
       end

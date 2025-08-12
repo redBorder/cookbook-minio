@@ -11,6 +11,7 @@ attribute :malware_secret_key_id, kind_of: String, default: 'malware'
 attribute :s3_bucket, kind_of: String, default: 'bucket'
 attribute :s3_malware_bucket, kind_of: String, default: 'malware'
 attribute :s3_endpoint, kind_of: String, default: 's3.service'
+attribute :s3_malware_endpoint, kind_of: String, default: 'malware.s3.service'
 attribute :ipaddress, kind_of: String, default: '127.0.0.1'
 attribute :s3_hosts, kind_of: Array, default: ['localhost:9000']
 attribute :managers_with_minio, kind_of: Array, default: []
