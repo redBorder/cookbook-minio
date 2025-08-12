@@ -95,7 +95,8 @@ action :add do
         variables(
           s3_user: s3_malware_user,
           s3_password: s3_malware_password,
-          s3_endpoint: s3_malware_endpoint,
+          s3_endpoint: s3_endpoint,
+          s3_malware_endpoint: s3_malware_endpoint,
           cdomain: cdomain
         )
       end
