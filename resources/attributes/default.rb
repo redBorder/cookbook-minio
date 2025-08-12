@@ -9,7 +9,9 @@ default['minio']['s3_user'] = ['redborder']
 default['minio']['s3_password'] = ['redborder']
 default['minio']['s3_hosts'] = ['localhost:9000']
 default['minio']['s3_bucket'] = 'bucket'
+default['minio']['s3_malware_bucket'] = 'malware'
 default['minio']['s3_endpoint'] = 's3.service'
+default['minio']['s3_malware_endpoint'] = 'malware.s3.service'
 
 # Flags
 default['minio']['registered'] = false
