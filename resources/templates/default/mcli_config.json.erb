@@ -11,7 +11,7 @@
 		},
 	<% end %>
 		"malware": {
-			"url": "<%= "http://#{s3_malware_endpoint}:#{node['minio']['port']}" %>",
+			"url": "<%= "http://#{@s3_malware_endpoint}:#{node['minio']['port']}" %>",
 			"accessKey": "<%= @s3_malware_user %>",
 			"secretKey": "<%= @s3_malware_password %>",
 			"api": "s3v4",
