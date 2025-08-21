@@ -155,6 +155,9 @@ action :add_mcli do
   managers_with_minio = new_resource.managers_with_minio
   s3_user = new_resource.access_key_id
   s3_password = new_resource.secret_key_id
+  s3_malware_user = new_resource.malware_access_key_id
+  s3_malware_password = new_resource.malware_secret_key_id
+  s3_malware_endpoint = new_resource.s3_malware_endpoint
 
   directory '/root/.mcli' do
     owner 'root'
