@@ -135,10 +135,6 @@ action :add_malware do
 
     template '/etc/redborder/s3_malware_policy.json' do
       source 's3_malware_policy.json.erb'
-      variables(
-        s3_user: s3_user,
-        s3_password: s3_password
-      )
       notifies :restart, 'service[minio]', :delayed
     end
 
