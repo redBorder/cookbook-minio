@@ -185,7 +185,10 @@ action :add_mcli do
     cookbook 'minio'
     variables(s3_user: s3_user,
               s3_password: s3_password,
-              managers_with_minio: managers_with_minio)
+              managers_with_minio: managers_with_minio,
+              s3_malware_user: s3_malware_user,
+              s3_malware_password: s3_malware_password,
+              s3_malware_endpoint: s3_malware_endpoint)
   end
 end
 

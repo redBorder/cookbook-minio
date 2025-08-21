@@ -10,6 +10,13 @@
 			"path": "auto"
 		},
 	<% end %>
+		"malware": {
+			"url": "<%= "http://#{s3_malware_endpoint}:#{node['minio']['port']}" %>",
+			"accessKey": "<%= @s3_malware_user %>",
+			"secretKey": "<%= @s3_malware_password %>",
+			"api": "s3v4",
+			"path": "auto"
+		}
     <% @managers_with_minio.each_with_index do |m, index| %>
     <% manager = (m == 'localhost') ? node.name : m %>
 		"<%= manager %>": {
