@@ -135,7 +135,7 @@ action :add_malware do
 
     template '/etc/redborder/s3_malware_policy.json' do
       source 's3_malware_policy.json.erb'
-      notifies :restart, 'service[minio]', :delayed
+      cookbook 'minio'
     end
 
     ruby_block 'configure_malware' do
