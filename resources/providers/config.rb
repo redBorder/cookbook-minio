@@ -130,25 +130,23 @@ end
 
 action :add_malware do
   begin
-    if s3_ready?
-      s3_malware_user = new_resource.malware_access_key_id
-      s3_malware_password = new_resource.malware_secret_key_id
+    s3_malware_user = new_resource.malware_access_key_id
+    s3_malware_password = new_resource.malware_secret_key_id
 
-      template '/etc/redborder/s3_malware_policy.json' do
-        source 's3_malware_policy.json.erb'
-        variables(
-          s3_user: s3_user,
-          s3_password: s3_password
-        )
-        notifies :restart, 'service[minio]', :delayed
-      end
+    template '/etc/redborder/s3_malware_policy.json' do
+      source 's3_malware_policy.json.erb'
+      variables(
+        s3_user: s3_user,
+        s3_password: s3_password
+      )
+      notifies :restart, 'service[minio]', :delayed
+    end
 
-      ruby_block 'configure_malware' do
-        block do
-          create_malware_user(s3_malware_user, s3_malware_password)
-          create_malware_policy(s3_malware_user, '/etc/redborder/s3_malware_policy.json')
-          Chef::Log.info('Malware user and policy created')
-        end
+    ruby_block 'configure_malware' do
+      block do
+        create_malware_user(s3_malware_user, s3_malware_password)
+        create_malware_policy(s3_malware_user, '/etc/redborder/s3_malware_policy.json')
+        Chef::Log.info('Malware user and policy created')
       end
     end
 
