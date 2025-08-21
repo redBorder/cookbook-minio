@@ -16,9 +16,9 @@
 			"secretKey": "<%= @s3_malware_password %>",
 			"api": "s3v4",
 			"path": "auto"
-		}
-    <% @managers_with_minio.each_with_index do |m, index| %>
-    <% manager = (m == 'localhost') ? node.name : m %>
+		},
+		<% @managers_with_minio.each_with_index do |m, index| %>
+		<% manager = (m == 'localhost') ? node.name : m %>
 		"<%= manager %>": {
 			"url": "<%= "http://#{manager}.#{node.default['redborder']['cdomain']}:#{node['minio']['port']}" %>",
 			"accessKey": "<%= @s3_user %>",
@@ -26,6 +26,6 @@
 			"api": "s3v4",
 			"path": "auto"
 		}<% if index < @managers_with_minio.length - 1 %>,<% end %>
-    <% end %>
+		<% end %>
 	}
 }
