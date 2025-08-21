@@ -83,5 +83,14 @@ module Minio
         'redborder.cluster'
       end
     end
+
+    def create_malware_user(s3_malware_user, s3_malware_password)
+      system("/usr/local/bin/mcli admin user add local #{s3_malware_user} #{s3_malware_password}")
+    end
+
+    def create_malware_policy(s3_malware_user, template_path)
+      system("/usr/local/bin/mcli admin policy create local malware-policy #{template_path}")
+      system("/usr/local/bin/mcli admin policy attach local malware-policy --user #{s3_malware_user}")
+    end
   end
 end
