@@ -124,6 +124,7 @@ action :add_malware do
     cdomain = get_cdomain
 
     if create_malware_credentials
+      Chef::Log.info('Creating new malware credentials')
       s3_malware_user = generate_random_key(20)
       s3_malware_password = generate_random_key(40)
     else
