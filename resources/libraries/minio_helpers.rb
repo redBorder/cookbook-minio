@@ -85,6 +85,9 @@ module Minio
     end
 
     def create_malware_user(s3_malware_user, s3_malware_password)
+      user_exists = system("/usr/local/bin/mcli admin user info local #{s3_malware_user} > /dev/null 2>&1")
+      return true if user_exists
+
       system("/usr/local/bin/mcli admin user add local #{s3_malware_user} #{s3_malware_password}")
     end
 
