@@ -118,19 +118,11 @@ end
 
 action :add_malware do
   begin
-    create_malware_credentials = new_resource.create_malware_credentials
     s3_endpoint = new_resource.s3_endpoint
     s3_malware_endpoint = new_resource.s3_malware_endpoint
     cdomain = get_cdomain
-
-    if create_malware_credentials
-      Chef::Log.info('Creating new malware credentials')
-      s3_malware_user = generate_random_key(20)
-      s3_malware_password = generate_random_key(40)
-    else
-      s3_malware_user = new_resource.malware_access_key_id
-      s3_malware_password = new_resource.malware_secret_key_id
-    end
+    s3_malware_user = new_resource.malware_access_key_id
+    s3_malware_password = new_resource.malware_secret_key_id
 
     template '/root/.s3cfg_malware_initial' do
       source 's3cfg_malware_initial.erb'
