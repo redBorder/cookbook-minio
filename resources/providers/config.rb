@@ -7,16 +7,22 @@ action :add do
   begin
     user = new_resource.user
     s3_bucket = new_resource.s3_bucket
+    s3_malware_bucket = new_resource.s3_malware_bucket
     s3_endpoint = new_resource.s3_endpoint
+    s3_malware_endpoint = new_resource.s3_malware_endpoint
     managers_with_minio = new_resource.managers_with_minio
     cdomain = get_cdomain
 
     if !s3_ready?
       s3_user = generate_random_key(20)
       s3_password = generate_random_key(40)
+      s3_malware_user = generate_random_key(20)
+      s3_malware_password = generate_random_key(40)
     else
       s3_user = new_resource.access_key_id
       s3_password = new_resource.secret_key_id
+      s3_malware_user = new_resource.malware_access_key_id
+      s3_malware_password = new_resource.malware_secret_key_id
     end
 
     dnf_package 'minio' do
@@ -64,6 +70,10 @@ action :add do
           s3_password: s3_password,
           s3_bucket: s3_bucket,
           s3_endpoint: s3_endpoint,
+          s3_malware_user: s3_malware_user,
+          s3_malware_password: s3_malware_password,
+          s3_malware_bucket: s3_malware_bucket,
+          s3_malware_endpoint: s3_malware_endpoint,
           cdomain: cdomain
         )
       end
@@ -106,6 +116,45 @@ action :add do
   end
 end
 
+action :add_malware do
+  begin
+    s3_endpoint = new_resource.s3_endpoint
+    s3_malware_endpoint = new_resource.s3_malware_endpoint
+    cdomain = get_cdomain
+    s3_malware_user = new_resource.malware_access_key_id
+    s3_malware_password = new_resource.malware_secret_key_id
+
+    template '/root/.s3cfg_malware_initial' do
+      source 's3cfg_malware_initial.erb'
+      cookbook 'minio'
+      variables(
+        s3_user: s3_malware_user,
+        s3_password: s3_malware_password,
+        s3_endpoint: s3_endpoint,
+        s3_malware_endpoint: s3_malware_endpoint,
+        cdomain: cdomain
+      )
+    end
+
+    template '/etc/redborder/s3_malware_policy.json' do
+      source 's3_malware_policy.json.erb'
+      cookbook 'minio'
+    end
+
+    ruby_block 'configure_malware' do
+      block do
+        create_malware_user(s3_malware_user, s3_malware_password)
+        create_malware_policy(s3_malware_user, '/etc/redborder/s3_malware_policy.json')
+        Chef::Log.info('Malware user and policy created')
+      end
+    end
+
+    Chef::Log.info('Added malware user and policy to Minio')
+  rescue => e
+    Chef::Log.error("Error creating malware user and policy: #{e.message}")
+  end
+end
+
 action :add_s3_conf_nginx do
   s3_hosts = new_resource.s3_hosts
   cdomain = get_cdomain
@@ -133,6 +182,9 @@ action :add_mcli do
   managers_with_minio = new_resource.managers_with_minio
   s3_user = new_resource.access_key_id
   s3_password = new_resource.secret_key_id
+  s3_malware_user = new_resource.malware_access_key_id
+  s3_malware_password = new_resource.malware_secret_key_id
+  s3_malware_endpoint = new_resource.s3_malware_endpoint
 
   directory '/root/.mcli' do
     owner 'root'
@@ -163,7 +215,10 @@ action :add_mcli do
     cookbook 'minio'
     variables(s3_user: s3_user,
               s3_password: s3_password,
-              managers_with_minio: managers_with_minio)
+              managers_with_minio: managers_with_minio,
+              s3_malware_user: s3_malware_user,
+              s3_malware_password: s3_malware_password,
+              s3_malware_endpoint: s3_malware_endpoint)
   end
 end
 

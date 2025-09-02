@@ -1,4 +1,4 @@
-actions :add, :remove, :register, :deregister, :add_s3_conf_nginx, :add_mcli
+actions :add, :remove, :register, :deregister, :add_s3_conf_nginx, :add_mcli, :add_malware
 default_action :add
 
 attribute :user, kind_of: String, default: 'minio'
@@ -6,8 +6,13 @@ attribute :group, kind_of: String, default: 'minio'
 attribute :port, kind_of: Integer, default: 9000
 attribute :access_key_id, kind_of: String, default: 'redborder'
 attribute :secret_key_id, kind_of: String, default: 'redborder'
+attribute :malware_access_key_id, kind_of: String, default: 'malware'
+attribute :malware_secret_key_id, kind_of: String, default: 'malware'
 attribute :s3_bucket, kind_of: String, default: 'bucket'
+attribute :s3_malware_bucket, kind_of: String, default: 'malware'
 attribute :s3_endpoint, kind_of: String, default: 's3.service'
+attribute :s3_malware_endpoint, kind_of: String, default: 'malware.s3.service'
 attribute :ipaddress, kind_of: String, default: '127.0.0.1'
 attribute :s3_hosts, kind_of: Array, default: ['localhost:9000']
 attribute :managers_with_minio, kind_of: Array, default: []
+attribute :create_malware_credentials, kind_of: [TrueClass, FalseClass], default: false
