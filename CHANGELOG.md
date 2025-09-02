@@ -1,6 +1,11 @@
 cookbook-minio CHANGELOG
 ===============
 
+## 1.4.0
+
+  - Pablo Pérez
+    - [a5c1f39] Add malware bucket
+
 ## 1.3.5
 
   - jnavarrorb
