@@ -3,37 +3,8 @@ cookbook-minio CHANGELOG
 
 ## 1.4.0
 
-  - Daniel Castro
-    - [a5d10cb] Merge pull request #39 from redBorder/feature/#22453_create_s3_malware_bucket
   - Pablo Pérez
-    - [38f6789] Don't create credentials here
-    - [c284488] Check if user exists before create it
-    - [261caa1] Add log if creating credentials
-    - [be0ff9a] Create new credentials if needed
-    - [67d324c] Remove unnecesary code
-    - [86b4215] Remove unnecesary variables
-    - [6368179] Remove if
-    - [1182992] Added malware action
-    - [76a0ece] Added malware configuration
-    - [83692c6] Reapply "Fix malware variables in add_mcli"
-    - [ebc8cc2] Reapply "Add a comma and use always the same identation type"
-    - [0d2eabc] Revert "Add a comma and use always the same identation type"
-    - [333ae9f] Revert "Fix malware variables in add_mcli"
-    - [9f4d14b] Add a comma and use always the same identation type
-    - [91bcff4] Fix malware variables in add_mcli
-    - [5f21548] Adding malware into mcli_config.json
-    - [d91e61d] Remove empty last line
-    - [8a1341e] Fix endpoint in .s3cfg_malware_initial
-    - [84ffaa8] Add malware endpoint as variable
-    - [af55282] Add malware attributes
-    - [bc6cef1] Remove unnecesary malware variables
-    - [434654a] fix malware endpoint
-    - [3b1c9b4] Change malware bucket
-    - [a5bd261] Remove malware
-    - [471327e] Add malware into mcli conf
-    - [4ffef7d] Add malware into etc/default/minio
     - [a5c1f39] Add malware bucket
-    - [f1bb983] Remove mystring test
 
 ## 1.3.5
 
