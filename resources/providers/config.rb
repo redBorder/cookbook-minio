@@ -70,6 +70,14 @@ action :add do
           s3_password: s3_password,
           s3_bucket: s3_bucket,
           s3_endpoint: s3_endpoint,
+          cdomain: cdomain
+        )
+      end
+
+      template '/etc/redborder/s3_malware_init_conf.yml' do
+        source 's3_malware_init_conf.yml.erb'
+        cookbook 'minio'
+        variables(
           s3_malware_user: s3_malware_user,
           s3_malware_password: s3_malware_password,
           s3_malware_bucket: s3_malware_bucket,
