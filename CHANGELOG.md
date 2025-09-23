@@ -1,6 +1,11 @@
 cookbook-minio CHANGELOG
 ===============
 
+## 1.4.1
+
+  - manegron
+    - [fa6e0cd] Update malware setup
+
 ## 1.4.0
 
   - Pablo Pérez
