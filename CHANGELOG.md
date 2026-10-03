@@ -1,6 +1,11 @@
 cookbook-minio CHANGELOG
 ===============
 
+## 1.4.2
+
+  - manegron
+    - [02d350b] Upload cookbook only if opscode-erchef is active
+
 ## 1.4.1
 
   - manegron
