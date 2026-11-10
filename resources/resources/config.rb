@@ -16,3 +16,5 @@ attribute :ipaddress, kind_of: String, default: '127.0.0.1'
 attribute :s3_hosts, kind_of: Array, default: ['localhost:9000']
 attribute :managers_with_minio, kind_of: Array, default: []
 attribute :create_malware_credentials, kind_of: [TrueClass, FalseClass], default: false
+# true: S3 keys live in OpenBao; files are rendered by the agent into /run (never on disk)
+attribute :openbao, kind_of: [TrueClass, FalseClass], default: false
