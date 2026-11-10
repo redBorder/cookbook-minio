@@ -230,7 +230,7 @@ action :add_malware do
     end
 
     ruby_block 'configure_malware' do
-      only_if { s3_malware_password } # nil while OpenBao is sealed
+      only_if { !s3_malware_password.nil? } # boolean: Chef prints a non-boolean result in a warning
       block do
         create_malware_user(s3_malware_user, s3_malware_password)
         create_malware_policy(s3_malware_user, '/etc/redborder/s3_malware_policy.json')
