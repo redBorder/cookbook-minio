@@ -116,7 +116,10 @@ action :add do
       malware_real = first_run ? { s3_malware_user: s3_malware_user, s3_malware_password: s3_malware_password } : nil
       { '/etc/redborder/s3_init_conf.yml' => ['s3_init_conf.yml.erb', 's3-init-conf', s3_vars, s3_real],
         '/etc/redborder/s3_malware_init_conf.yml' => ['s3_malware_init_conf.yml.erb', 's3-malware-init-conf', malware_vars, malware_real],
-        '/root/.s3cfg_initial' => ['s3cfg_initial.erb', 's3cfg-initial', s3_vars, s3_real] }.each do |path, (src, name, vars, real)|
+        '/root/.s3cfg_initial' => ['s3cfg_initial.erb', 's3cfg-initial', s3_vars, s3_real],
+        '/root/.s3cfg_malware_initial' => ['s3cfg_malware_initial.erb', 's3cfg-malware-initial',
+                                           { s3_user: malware_vars[:s3_malware_user], s3_password: malware_vars[:s3_malware_password] },
+                                           malware_real && { s3_user: malware_real[:s3_malware_user], s3_password: malware_real[:s3_malware_password] }] }.each do |path, (src, name, vars, real)|
         openbao_secret_file name do
           source src
           cookbook 'minio'
