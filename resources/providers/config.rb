@@ -21,13 +21,13 @@ action :add do
       s3_malware_user = generate_random_key(20)
       s3_malware_password = generate_random_key(40)
       if openbao
-        # Generated before OpenBao exists: seeded for 'rb_openbao init', never written to disk
+        # OpenBao does not exist yet: seeded for 'rb_openbao init'
         OpenBao.seed_secret('s3', 's3_access_key_id' => s3_user, 's3_secret_key_id' => s3_password)
         OpenBao.seed_secret('s3_malware', 's3_malware_access_key_id' => s3_malware_user,
                                           's3_malware_secret_key_id' => s3_malware_password)
       end
     elsif openbao
-      # Real values only where Chef itself needs them; nil while OpenBao is sealed
+      # nil while OpenBao is sealed
       s3 = OpenBao.run_secret('s3') || {}
       s3_user = s3['s3_access_key_id']
       s3_password = s3['s3_secret_key_id']
@@ -37,7 +37,6 @@ action :add do
       s3_malware_user = new_resource.malware_access_key_id
       s3_malware_password = new_resource.malware_secret_key_id
     end
-    # Agent templates get placeholders; Chef writes the same files itself only while it knows the values
     s3_vars = { s3_user: OpenBao.ref('s3', 's3_access_key_id'), s3_password: OpenBao.ref('s3', 's3_secret_key_id') }
     s3_real = s3_password ? { s3_user: s3_user, s3_password: s3_password } : nil
 
@@ -208,7 +207,6 @@ action :add_malware do
     s3_malware_user = new_resource.malware_access_key_id
     s3_malware_password = new_resource.malware_secret_key_id
     if new_resource.openbao
-      # mcli needs the real values; the agent renders the malware s3cfg (see :add)
       mal = OpenBao.run_secret('s3_malware') || {}
       s3_malware_user = mal['s3_malware_access_key_id']
       s3_malware_password = mal['s3_malware_secret_key_id']
@@ -233,7 +231,7 @@ action :add_malware do
     end
 
     ruby_block 'configure_malware' do
-      only_if { !s3_malware_password.nil? } # boolean: Chef prints a non-boolean result in a warning
+      only_if { !s3_malware_password.nil? } # boolean: Chef warns on a non-boolean result
       block do
         create_malware_user(s3_malware_user, s3_malware_password)
         create_malware_policy(s3_malware_user, '/etc/redborder/s3_malware_policy.json')
