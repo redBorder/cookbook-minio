@@ -13,8 +13,13 @@ action :add do
     managers_with_minio = new_resource.managers_with_minio
     cdomain = get_cdomain
 
-    first_run = !s3_ready?
-    if first_run
+    if s3_ready?
+      # nil while OpenBao is sealed
+      s3 = OpenBao.run_secret('s3') || {}
+      s3_user = s3['s3_access_key_id']
+      s3_password = s3['s3_secret_key_id']
+    else
+      # MinIO not set up yet: first run on this cluster, generate its keys
       s3_user = generate_random_key(20)
       s3_password = generate_random_key(40)
       s3_malware_user = generate_random_key(20)
@@ -23,11 +28,6 @@ action :add do
       OpenBao.seed_secret('s3', 's3_access_key_id' => s3_user, 's3_secret_key_id' => s3_password)
       OpenBao.seed_secret('s3_malware', 's3_malware_access_key_id' => s3_malware_user,
                                         's3_malware_secret_key_id' => s3_malware_password)
-    else
-      # nil while OpenBao is sealed
-      s3 = OpenBao.run_secret('s3') || {}
-      s3_user = s3['s3_access_key_id']
-      s3_password = s3['s3_secret_key_id']
     end
     s3_vars = { s3_user: OpenBao.ref('s3', 's3_access_key_id'), s3_password: OpenBao.ref('s3', 's3_secret_key_id') }
     s3_real = s3_password ? { s3_user: s3_user, s3_password: s3_password } : nil
@@ -92,7 +92,7 @@ action :add do
                s3_malware_endpoint: s3_malware_endpoint, cdomain: cdomain }
     malware_vars = { s3_malware_user: OpenBao.ref('s3_malware', 's3_malware_access_key_id'),
                      s3_malware_password: OpenBao.ref('s3_malware', 's3_malware_secret_key_id') }
-    malware_real = first_run ? { s3_malware_user: s3_malware_user, s3_malware_password: s3_malware_password } : nil
+    malware_real = s3_ready? ? nil : { s3_malware_user: s3_malware_user, s3_malware_password: s3_malware_password }
     { '/etc/redborder/s3_init_conf.yml' => ['s3_init_conf.yml.erb', 's3-init-conf', s3_vars, s3_real],
       '/etc/redborder/s3_malware_init_conf.yml' => ['s3_malware_init_conf.yml.erb', 's3-malware-init-conf', malware_vars, malware_real],
       '/root/.s3cfg_initial' => ['s3cfg_initial.erb', 's3cfg-initial', s3_vars, s3_real],
