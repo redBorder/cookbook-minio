@@ -143,9 +143,6 @@ end
 
 action :add_malware do
   begin
-    s3_endpoint = new_resource.s3_endpoint
-    s3_malware_endpoint = new_resource.s3_malware_endpoint
-    cdomain = get_cdomain
     mal = OpenBao.run_secret('s3_malware') || {}
     s3_malware_user = mal['s3_malware_access_key_id']
     s3_malware_password = mal['s3_malware_secret_key_id']
