@@ -13,17 +13,24 @@ action :add do
     managers_with_minio = new_resource.managers_with_minio
     cdomain = get_cdomain
 
-    if !s3_ready?
+    if s3_ready?
+      # nil while OpenBao is sealed
+      s3 = OpenBao.run_secret('s3') || {}
+      s3_user = s3['s3_access_key_id']
+      s3_password = s3['s3_secret_key_id']
+    else
+      # MinIO not set up yet: first run on this cluster, generate its keys
       s3_user = generate_random_key(20)
       s3_password = generate_random_key(40)
       s3_malware_user = generate_random_key(20)
       s3_malware_password = generate_random_key(40)
-    else
-      s3_user = new_resource.access_key_id
-      s3_password = new_resource.secret_key_id
-      s3_malware_user = new_resource.malware_access_key_id
-      s3_malware_password = new_resource.malware_secret_key_id
+      # OpenBao does not exist yet: seeded for 'rb_openbao init'
+      OpenBao.seed_secret('s3', 's3_access_key_id' => s3_user, 's3_secret_key_id' => s3_password)
+      OpenBao.seed_secret('s3_malware', 's3_malware_access_key_id' => s3_malware_user,
+                                        's3_malware_secret_key_id' => s3_malware_password)
     end
+    s3_vars = { s3_user: OpenBao.ref('s3', 's3_access_key_id'), s3_password: OpenBao.ref('s3', 's3_secret_key_id') }
+    s3_real = s3_password ? { s3_user: s3_user, s3_password: s3_password } : nil
 
     dnf_package 'minio' do
       action :upgrade
@@ -52,49 +59,59 @@ action :add do
       only_if { exists_minio_conf? }
     end
 
-    template '/etc/default/minio' do
+    %w(s3 s3_malware).each do |name|
+      openbao_secret_file "root-#{name}" do
+        source 'secret.json.ctmpl.erb'
+        cookbook 'openbao'
+        variables(path: name)
+        destination "/run/rb-secrets/root/#{name}.json"
+        owner 'root'
+        group 'root'
+        mode '0600'
+      end
+    end
+
+    openbao_secret_file 'minio-env' do
       source 'minio.erb'
-      variables(
-        s3_user: s3_user,
-        s3_password: s3_password
-      )
+      cookbook 'minio'
+      variables s3_vars
+      bootstrap_variables s3_real
+      destination '/run/rb-secrets/minio/env'
+      owner 'root'
+      group user
+      mode '0640'
+      unit 'minio'
+    end
+
+    link '/etc/default/minio' do
+      to '/run/rb-secrets/minio/env'
       notifies :restart, 'service[minio]', :delayed
     end
 
-    unless s3_ready?
-      template '/etc/redborder/s3_init_conf.yml' do
-        source 's3_init_conf.yml.erb'
+    common = { s3_bucket: s3_bucket, s3_endpoint: s3_endpoint, s3_malware_bucket: s3_malware_bucket,
+               s3_malware_endpoint: s3_malware_endpoint, cdomain: cdomain }
+    malware_vars = { s3_malware_user: OpenBao.ref('s3_malware', 's3_malware_access_key_id'),
+                     s3_malware_password: OpenBao.ref('s3_malware', 's3_malware_secret_key_id') }
+    malware_real = s3_ready? ? nil : { s3_malware_user: s3_malware_user, s3_malware_password: s3_malware_password }
+    { '/etc/redborder/s3_init_conf.yml' => ['s3_init_conf.yml.erb', 's3-init-conf', s3_vars, s3_real],
+      '/etc/redborder/s3_malware_init_conf.yml' => ['s3_malware_init_conf.yml.erb', 's3-malware-init-conf', malware_vars, malware_real],
+      '/root/.s3cfg_initial' => ['s3cfg_initial.erb', 's3cfg-initial', s3_vars, s3_real],
+      '/root/.s3cfg_malware_initial' => ['s3cfg_malware_initial.erb', 's3cfg-malware-initial',
+                                         { s3_user: malware_vars[:s3_malware_user], s3_password: malware_vars[:s3_malware_password] },
+                                         malware_real && { s3_user: malware_real[:s3_malware_user], s3_password: malware_real[:s3_malware_password] }] }.each do |path, (src, name, vars, real)|
+      openbao_secret_file name do
+        source src
         cookbook 'minio'
-        variables(
-          s3_user: s3_user,
-          s3_password: s3_password,
-          s3_bucket: s3_bucket,
-          s3_endpoint: s3_endpoint,
-          cdomain: cdomain
-        )
+        variables common.merge(vars)
+        bootstrap_variables real && common.merge(real)
+        destination "/run/rb-secrets/root/#{::File.basename(path).sub(/^\./, '')}"
+        owner 'root'
+        group 'root'
+        mode '0600'
       end
 
-      template '/etc/redborder/s3_malware_init_conf.yml' do
-        source 's3_malware_init_conf.yml.erb'
-        cookbook 'minio'
-        variables(
-          s3_malware_user: s3_malware_user,
-          s3_malware_password: s3_malware_password,
-          s3_malware_bucket: s3_malware_bucket,
-          s3_malware_endpoint: s3_malware_endpoint,
-          cdomain: cdomain
-        )
-      end
-
-      template '/root/.s3cfg_initial' do
-        source 's3cfg_initial.erb'
-        cookbook 'minio'
-        variables(
-          s3_user: s3_user,
-          s3_password: s3_password,
-          s3_endpoint: s3_endpoint,
-          cdomain: cdomain
-        )
+      link path do
+        to "/run/rb-secrets/root/#{::File.basename(path).sub(/^\./, '')}"
       end
     end
 
@@ -126,23 +143,9 @@ end
 
 action :add_malware do
   begin
-    s3_endpoint = new_resource.s3_endpoint
-    s3_malware_endpoint = new_resource.s3_malware_endpoint
-    cdomain = get_cdomain
-    s3_malware_user = new_resource.malware_access_key_id
-    s3_malware_password = new_resource.malware_secret_key_id
-
-    template '/root/.s3cfg_malware_initial' do
-      source 's3cfg_malware_initial.erb'
-      cookbook 'minio'
-      variables(
-        s3_user: s3_malware_user,
-        s3_password: s3_malware_password,
-        s3_endpoint: s3_endpoint,
-        s3_malware_endpoint: s3_malware_endpoint,
-        cdomain: cdomain
-      )
-    end
+    mal = OpenBao.run_secret('s3_malware') || {}
+    s3_malware_user = mal['s3_malware_access_key_id']
+    s3_malware_password = mal['s3_malware_secret_key_id']
 
     template '/etc/redborder/s3_malware_policy.json' do
       source 's3_malware_policy.json.erb'
@@ -150,6 +153,7 @@ action :add_malware do
     end
 
     ruby_block 'configure_malware' do
+      only_if { !s3_malware_password.nil? } # boolean: Chef warns on a non-boolean result
       block do
         create_malware_user(s3_malware_user, s3_malware_password)
         create_malware_policy(s3_malware_user, '/etc/redborder/s3_malware_policy.json')
@@ -188,10 +192,6 @@ end
 
 action :add_mcli do
   managers_with_minio = new_resource.managers_with_minio
-  s3_user = new_resource.access_key_id
-  s3_password = new_resource.secret_key_id
-  s3_malware_user = new_resource.malware_access_key_id
-  s3_malware_password = new_resource.malware_secret_key_id
   s3_malware_endpoint = new_resource.s3_malware_endpoint
 
   directory '/root/.mcli' do
@@ -218,15 +218,23 @@ action :add_mcli do
     not_if { ::File.exist?('/root/.mcli/share/uploads.json') }
   end
 
-  template '/root/.mcli/config.json' do
+  openbao_secret_file 'mcli-config' do
     source 'mcli_config.json.erb'
     cookbook 'minio'
-    variables(s3_user: s3_user,
-              s3_password: s3_password,
+    variables(s3_user: OpenBao.ref('s3', 's3_access_key_id'),
+              s3_password: OpenBao.ref('s3', 's3_secret_key_id'),
               managers_with_minio: managers_with_minio,
-              s3_malware_user: s3_malware_user,
-              s3_malware_password: s3_malware_password,
+              s3_malware_user: OpenBao.ref('s3_malware', 's3_malware_access_key_id'),
+              s3_malware_password: OpenBao.ref('s3_malware', 's3_malware_secret_key_id'),
               s3_malware_endpoint: s3_malware_endpoint)
+    destination '/run/rb-secrets/root/mcli-config.json'
+    owner 'root'
+    group 'root'
+    mode '0600'
+  end
+
+  link '/root/.mcli/config.json' do
+    to '/run/rb-secrets/root/mcli-config.json'
   end
 end
 
